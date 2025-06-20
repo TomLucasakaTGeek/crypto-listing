@@ -13,7 +13,10 @@ const CoinContextProvider = (props) => {
     const fetchAllCoin = useCallback(async () => {
         const options = {
   method: 'GET',
-  headers: {accept: 'application/json', 'x-cg-pro-api-key': 'CG-4M6nG8o842Nuv1aLvi5xQLPz'}
+  headers: {
+    accept: 'application/json', 
+    'x-cg-pro-api-key': import.meta.env.VITE_API_KEY
+}
 };
 
 try {
