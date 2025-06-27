@@ -11,28 +11,31 @@ const CoinContextProvider = (props) => {
     })
 
     const fetchAllCoin = useCallback(async () => {
+        
         const options = {
-  method: 'GET',
-  headers: {
-    accept: 'application/json', 
-    'x-cg-pro-api-key': "CG-4M6nG8o842Nuv1aLvi5xQLPz",
-}
-};
+            method: 'GET',
+            headers: {
+                accept: 'application/json', 
+                'x-cg-pro-api-key': 'CG-4M6nG8o842Nuv1aLvi5xQLPz',
+            }
+        };
 
-try {
-    const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.name}&order=market_cap_desc&per_page=100&page=1&sparkline=false`, options)
+    try {
+        const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.name}&order=market_cap_desc&per_page=100&page=1&sparkline=false`, options)
 
-    if(!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
+        if(!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data = await res.json()
+        setAllCoin(data)
+        
+    } catch (error) {
+        console.error('Error fetching coins:', error)
+        setAllCoin([])
     }
 
-    const data = await res.json()
-    setAllCoin(data)
-} catch (error) {
-    console.error('Error fetching coins:', error)
-    setAllCoin([])
-}
-}, [currency.name]) 
+    }, [currency.name]) 
 
     useEffect(() => {
         fetchAllCoin()
