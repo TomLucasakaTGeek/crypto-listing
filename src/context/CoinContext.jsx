@@ -11,31 +11,47 @@ const CoinContextProvider = (props) => {
     })
 
     const fetchAllCoin = useCallback(async () => {
+        console.log('🔍 Fetching all coins from Coinlore API')
         
-        const options = {
-            method: 'GET',
-            headers: {
-                accept: 'application/json', 
-                'x-cg-pro-api-key': 'CG-R3VX9z5u2mMauHaRkELUWLAL',
+        try {
+            // Fetch first 100 coins from Coinlore
+            const res = await fetch('https://api.coinlore.net/api/tickers/')
+            
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`)
             }
-        };
 
-    try {
-        const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.name}&order=market_cap_desc&per_page=100&page=1&sparkline=false`, options)
-
-        if(!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`)
+            const data = await res.json()
+            console.log('✅ Coinlore data received:', data.info?.coins_num, 'total coins available')
+            console.log('📊 Fetched coins:', data.data?.length)
+            
+            if (data && data.data && Array.isArray(data.data)) {
+                // Transform Coinlore data to match your existing structure
+                const transformedData = data.data.map(coin => ({
+                    id: coin.id,
+                    name: coin.name,
+                    symbol: coin.symbol,
+                    image: `https://coinicons-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`,
+                    current_price: parseFloat(coin.price_usd),
+                    market_cap: parseFloat(coin.market_cap_usd),
+                    market_cap_rank: coin.rank,
+                    price_change_percentage_24h: parseFloat(coin.percent_change_24h),
+                    // Add original coinlore data for reference
+                    coinlore_data: coin
+                }))
+                
+                setAllCoin(transformedData)
+                console.log('✅ Transformed', transformedData.length, 'coins for display')
+            } else {
+                throw new Error('Invalid data structure received from Coinlore API')
+            }
+            
+        } catch (error) {
+            console.error('💥 Error fetching coins from Coinlore:', error)
+            setAllCoin([])
         }
 
-        const data = await res.json()
-        setAllCoin(data)
-        
-    } catch (error) {
-        console.error('Error fetching coins:', error)
-        setAllCoin([])
-    }
-
-    }, [currency.name]) 
+    }, []) // Removed currency dependency since Coinlore only provides USD
 
     useEffect(() => {
         fetchAllCoin()
@@ -44,7 +60,8 @@ const CoinContextProvider = (props) => {
     const contextValue = {
         allCoin, 
         currency, 
-        setCurrency
+        setCurrency,
+        fetchAllCoin // Expose function to allow manual refresh
     }
 
     return (

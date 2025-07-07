@@ -3,9 +3,7 @@ import './Home.css';
 import { CoinContext } from '../../context/CoinContext';
 import { Link } from 'react-router-dom';
 
-
 const Home = () => {
-  
   const {allCoin, currency} = useContext(CoinContext)
   const [displayCoin, setDisplayCoin] = useState([])
   const [input, setInput] = useState("")
